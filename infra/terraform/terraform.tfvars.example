@@ -1,0 +1,8 @@
+region                 = "sa-saopaulo-1"
+compartment_ocid       = "ocid1.compartment.REEMPLAZAR"
+availability_domain    = "Dcvm:SA-SAOPAULO-1-AD-1"
+ubuntu_2404_image_ocid = "ocid1.image.REEMPLAZAR"
+ssh_public_key         = "ssh-rsa REEMPLAZAR"
+runner_ssh_cidr        = "203.0.113.1/32"
+admin_ssh_cidr         = "0.0.0.0/0" # Practica: permite SSH desde cualquier IPv4, con clave privada.
+shape                  = "VM.Standard.E2.1"

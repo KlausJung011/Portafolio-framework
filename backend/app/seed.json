@@ -1,0 +1,387 @@
+{
+  "profile": {
+    "name": "Nicol\u00e1s Arturo Vargas Silva",
+    "title": "Desarrollador de Software en Formación",
+    "email": "nico.nsavs@gmail.com",
+    "phone": "+59178666971",
+    "location": "Sucre, Bolivia",
+    "availability": "Disponible para proyectos",
+    "about": [
+      "Soy un desarrollador de software apasionado por crear soluciones digitales elegantes, funcionales y a veces inusuales. Actualmente estudio Ingeniería en Sistemas Informáticos en la Universidad del Valle (6.º semestre), y combino mi formación académica con aprendizaje autodidacta y experiencia práctica al desarrollar proyectos con tecnologías variadas.",
+      "Me motiva descubrir nuevas herramientas y tecnologías constantemente, aprender sobre nuevas soluciones, enfrentar retos técnicos complejos y aportar valor real a través del código. Tengo experiencia previa en Ingeniería Electromecánica, lo que me da una perspectiva multidisciplinaria y detallista única para abordar los problemas de software."
+    ]
+  },
+  "interests": [
+    {
+      "title": "Desarrollo Web",
+      "description": "Crear soluciones web modernas y responsivas con tecnologías actuales.",
+      "icon": "fas fa-globe"
+    },
+    {
+      "title": "Inteligencia Artificial",
+      "description": "Explorar machine learning y automatización inteligente de procesos con agentes de IA.",
+      "icon": "fas fa-robot"
+    },
+    {
+      "title": "CivicTech & GovTech",
+      "description": "Tecnologías aplicadas a la política y la democracia digital: participación ciudadana, transparencia y toma de decisiones colectivas.",
+      "icon": "fas fa-landmark"
+    },
+    {
+      "title": "Tecnologías en la Nube",
+      "description": "Alojamiento de aplicaciones y servicios web: servidores VPS, Docker, máquinas virtuales y plataformas cloud.",
+      "icon": "fas fa-cloud"
+    },
+    {
+      "title": "Diseño UI/UX",
+      "description": "Diseño de interfaces modernas y accesibles orientadas al usuario, hasta estilos más creativos e inusuales si se requiere.",
+      "icon": "fas fa-pen-ruler"
+    },
+    {
+      "title": "FinTech & Criptomonedas",
+      "description": "Tecnología aplicada a las finanzas: sistemas de pago digitales, blockchain y mercados de activos cripto.",
+      "icon": "fas fa-coins"
+    },
+    {
+      "title": "Datos & Análisis",
+      "description": "Recopilación, procesamiento y análisis de datos para extraer insights valiosos con herramientas como SQL, Python y visualización.",
+      "icon": "fas fa-chart-bar"
+    },
+    {
+      "title": "Robótica e IoT",
+      "description": "Diseño y programación de sistemas robóticos autónomos y sistemas con sensores y actuadores conectados a internet.",
+      "icon": "fas fa-gears"
+    }
+  ],
+  "tech_groups": [
+    {
+      "title": "Frontend",
+      "tags": [
+        "HTML5",
+        "CSS3",
+        "JavaScript",
+        "React",
+        "Next.js"
+      ]
+    },
+    {
+      "title": "Backend",
+      "tags": [
+        "Python",
+        "FastAPI",
+        "Node.js",
+        "C#",
+        "Nest.js"
+      ]
+    },
+    {
+      "title": "Bases de Datos",
+      "tags": [
+        "SQL Server",
+        "PostgreSQL",
+        "MySQL",
+        "Firebase"
+      ]
+    },
+    {
+      "title": "Móvil & Desktop",
+      "tags": [
+        "Kotlin",
+        "Flutter",
+        "WPF .NET"
+      ]
+    },
+    {
+      "title": "Herramientas",
+      "tags": [
+        "Git",
+        "GitHub",
+        "Figma",
+        "VS Code",
+        "Unity",
+        "Inventor",
+        "Autocad",
+        "Impresión 3D"
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "name": "Python",
+      "level": 80
+    },
+    {
+      "name": "JavaScript / React",
+      "level": 70
+    },
+    {
+      "name": "C# / WPF",
+      "level": 75
+    },
+    {
+      "name": "HTML / CSS",
+      "level": 85
+    },
+    {
+      "name": "SQL / Bases de datos",
+      "level": 72
+    },
+    {
+      "name": "Kotlin / Flutter (Android)",
+      "level": 60
+    },
+    {
+      "name": "Next.js",
+      "level": 30
+    },
+    {
+      "name": "Nest.js",
+      "level": 30
+    }
+  ],
+  "languages": [
+    {
+      "name": "Español",
+      "flag": "🇧🇴",
+      "level": 100,
+      "badge": "Nativo",
+      "description": "Lengua materna. Comunicación oral y escrita perfecta en contextos formales e informales."
+    },
+    {
+      "name": "Inglés",
+      "flag": "🇬🇧",
+      "level": 70,
+      "badge": "B2 — Upper Intermediate",
+      "description": "Lectura técnica fluida, comunicación escrita efectiva y comprensión auditiva en entornos profesionales."
+    }
+  ],
+  "soft_skills": [
+    {
+      "title": "Pensamiento crítico",
+      "description": "Análisis profundo de problemas para encontrar soluciones efectivas y bien fundamentadas.",
+      "icon": "fas fa-lightbulb"
+    },
+    {
+      "title": "Adaptabilidad",
+      "description": "Capacidad para aprender rápidamente nuevas tecnologías y adaptarse a distintos contextos.",
+      "icon": "fas fa-arrows-rotate"
+    },
+    {
+      "title": "Aprendizaje continuo",
+      "description": "Iniciativa propia para mantenerse actualizado y ampliar constantemente mis conocimientos.",
+      "icon": "fas fa-seedling"
+    },
+    {
+      "title": "Trabajo en equipo",
+      "description": "Trato empático y experiencia colaborando en equipos de desarrollo ágil (SCRUM), aportando y aprendiendo en grupo.",
+      "icon": "fas fa-people-group"
+    },
+    {
+      "title": "Comunicación efectiva",
+      "description": "Expresión clara de ideas técnicas y no técnicas tanto oral como por escrito.",
+      "icon": "fas fa-comments"
+    }
+  ],
+  "education": [
+    {
+      "title": "Ingeniería en Sistemas Informáticos",
+      "organization": "Universidad del Valle — Sucre, Bolivia",
+      "period": "2024 — Presente",
+      "description": "Licenciatura en ingeniería orientada al desarrollo de software, bases de datos, redes y sistemas distribuidos. Actualmente en el 6.º semestre.",
+      "tags": [
+        "Sistemas",
+        "Software",
+        "En curso"
+      ]
+    },
+    {
+      "title": "Diplomado — Experto en ROS",
+      "organization": "Unifranz",
+      "period": "2023",
+      "description": "Programa especializado en Robot Operating System (ROS) para desarrollo y control de sistemas robóticos autónomos.",
+      "tags": [
+        "Robótica",
+        "ROS",
+        "Python"
+      ]
+    },
+    {
+      "title": "Ingeniería Electromecánica",
+      "organization": "Universidad San Francisco Xavier — Sucre, Bolivia",
+      "period": "2017 — 2022",
+      "description": "Licenciatura en Ingeniería Electromecánica. Formación en sistemas eléctricos, automatización industrial y programación de PLCs.",
+      "tags": [
+        "Electromecánica",
+        "Automatización",
+        "PLCs"
+      ]
+    }
+  ],
+  "courses": [
+    {
+      "title": "CCNA - Introduction to Networks",
+      "provider": "Cisco",
+      "year": "2026"
+    },
+    {
+      "title": "Introduction to Cybersecurity",
+      "provider": "Cisco",
+      "year": "2025"
+    },
+    {
+      "title": "Introduction to Modern AI",
+      "provider": "Cisco",
+      "year": "2025"
+    },
+    {
+      "title": "Oracle Database Design",
+      "provider": "Oracle Academy",
+      "year": "2025"
+    },
+    {
+      "title": "Python Fundamentals",
+      "provider": "Cisco Networking Academy",
+      "year": "2024"
+    },
+    {
+      "title": "Programming with Python",
+      "provider": "Coursera — University of Michigan",
+      "year": "2021"
+    },
+    {
+      "title": "Especialización en Inventor",
+      "provider": "Capsoft — Autodesk",
+      "year": "2020"
+    },
+    {
+      "title": "Programación de PLCs",
+      "provider": "USFX",
+      "year": "2019"
+    }
+  ],
+  "experience": [
+    {
+      "title": "Desarrollador — Agente de IA para Ventas Conversacionales",
+      "organization": "Importadora de Productos de Salud Japoneses",
+      "period": "2025",
+      "description": "Diseño e implementación de un agente de IA autónomo para la automatización de ventas conversacionales por WhatsApp. El agente gestiona consultas, cotizaciones y seguimiento de clientes en tiempo real mediante flujos de trabajo de automatización.",
+      "tags": [
+        "N8N",
+        "Supabase",
+        "IA Conversacional",
+        "WhatsApp API",
+        "Automatización"
+      ]
+    },
+    {
+      "title": "Desarrollador — Sistema de Gestión Escolar",
+      "organization": "Proyecto para colegios de Santa Cruz",
+      "period": "2026 — Presente",
+      "description": "Desarrollo de una plataforma web de gestión escolar orientada a múltiples colegios de Santa Cruz. El sistema centraliza la administración académica, asistencia y comunicación entre docentes, estudiantes y personal. Proyecto realizado en colaboración con un profesor de la ciudad.",
+      "tags": [
+        "Next.js",
+        "PostgreSQL",
+        "En desarrollo"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "title": "Web de Música & Arte Digital",
+      "description": "Mi primer proyecto de desarrollo web. Exploré un diseño de interfaces más artístico, creativo e inusual — alejado de los estándares convencionales. Una experiencia visual atractiva que mezcla música y arte digital.",
+      "tags": [
+        "HTML5",
+        "CSS3",
+        "JavaScript",
+        "Primer proyecto"
+      ],
+      "status": "",
+      "repository": "https://github.com/KlausJung011/PrograWeb1",
+      "demo": "https://klausjung011.github.io/PrograWeb1/index.html",
+      "icon": "fas fa-music"
+    },
+    {
+      "title": "Portafolio Personal",
+      "description": "Portafolio full stack con React, FastAPI y PostgreSQL. Conserva el diseño glassmorphism, incluye un panel de administración y despliegue automatizado en Oracle Cloud.",
+      "tags": [
+        "React",
+        "FastAPI",
+        "PostgreSQL",
+        "Docker"
+      ],
+      "status": "",
+      "repository": "https://github.com/KlausJung011/Portafolio-framework",
+      "demo": "",
+      "icon": "fas fa-user-tie"
+    },
+    {
+      "title": "Sistema de Democracia Digital & Lotocracia",
+      "description": "Plataforma de CivicTech para recopilar, analizar y comprender la opinión de grupos masivos en tiempo real. Basada en Pol.is (código abierto), implementa lotocracia y visualización de consensos y divisiones de opinión.",
+      "tags": [
+        "CivicTech",
+        "Pol.is",
+        "Análisis de Datos",
+        "Democracia Digital"
+      ],
+      "status": "En idea",
+      "repository": "https://github.com/KlausJung011",
+      "demo": "",
+      "icon": "fas fa-landmark"
+    },
+    {
+      "title": "Sistema de Gestión Escolar",
+      "description": "Plataforma web para la gestión académica de múltiples colegios. Centraliza calificaciones, asistencia, comunicación docente-estudiante y administración institucional. Desarrollado en colaboración con un docente de Santa Cruz.",
+      "tags": [
+        "Next.js",
+        "PostgreSQL",
+        "Multi-tenant"
+      ],
+      "status": "En desarrollo",
+      "repository": "https://github.com/KlausJung011",
+      "demo": "",
+      "icon": "fas fa-school"
+    },
+    {
+      "title": "Sistema Multiplataforma de Restaurante",
+      "description": "Ecosistema completo de 3 plataformas: aplicación de escritorio para administración, web interna para meseros y cocineros (toma de pedidos y lista de platos en tiempo real), y app móvil para clientes pensionados.",
+      "tags": [
+        "C#",
+        "WPF",
+        "Web",
+        "Android",
+        "SQL Server"
+      ],
+      "status": "",
+      "repository": "https://github.com/KlausJung011",
+      "demo": "",
+      "icon": "fas fa-utensils"
+    },
+    {
+      "title": "Sistema de Gestión de Inmuebles",
+      "description": "Plataforma para la venta, alquiler y anticrético de terrenos, casas y departamentos. Incluye panel administrativo web, sitio público para compradores/arrendatarios, y app móvil para asesores inmobiliarios en visitas guiadas.",
+      "tags": [
+        "Web Admin",
+        "Web Pública",
+        "App Móvil",
+        "Inmobiliaria"
+      ],
+      "status": "",
+      "repository": "https://github.com/KlausJung011",
+      "demo": "",
+      "icon": "fas fa-house-chimney"
+    },
+    {
+      "title": "Plataforma Web de Agencias de Turismo",
+      "description": "Plataforma digital para agencias de turismo que permita gestionar paquetes, reservas, itinerarios y clientes. Orientada al turismo nacional e internacional con experiencia de usuario moderna.",
+      "tags": [
+        "Concepto",
+        "Turismo",
+        "Por definir"
+      ],
+      "status": "En idea",
+      "repository": "",
+      "demo": "",
+      "icon": "fas fa-plane-departure"
+    }
+  ]
+}

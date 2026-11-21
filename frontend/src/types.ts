@@ -1,0 +1,11 @@
+export type Profile = { name: string; title: string; email: string; phone: string; location: string; availability: string; about: string[] };
+export type Card = { title: string; description: string; icon: string };
+export type Skill = { name: string; level: number };
+export type TechGroup = { title: string; tags: string[] };
+export type Language = { name: string; flag: string; level: number; badge: string; description: string };
+export type Timeline = { title: string; organization: string; period: string; description: string; tags: string[] };
+export type Course = { title: string; provider: string; year: string };
+export type Project = Card & { tags: string[]; status: string; repository: string; demo: string };
+export type Content = { profile: Profile; interests: Card[]; tech_groups: TechGroup[]; skills: Skill[]; languages: Language[]; soft_skills: Card[]; education: Timeline[]; courses: Course[]; experience: Timeline[]; projects: Project[] };
+export type Portfolio = { revision: number; content: Content };
+export type Message = { id: number; name: string; email: string; phone: string; message: string; created_at: number; attended: boolean };

@@ -1,0 +1,5 @@
+bucket    = "portafolio-terraform-state"
+namespace = "REEMPLAZAR_NAMESPACE_OBJECT_STORAGE"
+key       = "portafolio/production.tfstate"
+region    = "sa-saopaulo-1"
+# Las credenciales se leen del perfil DEFAULT de ~/.oci/config.

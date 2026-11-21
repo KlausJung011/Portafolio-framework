@@ -1,0 +1,183 @@
+- name: Configurar y desplegar portafolio
+  hosts: portfolio
+  become: true
+  gather_facts: false
+  vars:
+    project_dir: /opt/portafolio
+    architecture_map: {x86_64: amd64, aarch64: arm64}
+  pre_tasks:
+    - name: Esperar SSH
+      ansible.builtin.wait_for_connection:
+        timeout: 600
+    - name: Esperar cloud-init
+      ansible.builtin.command: cloud-init status --wait
+      changed_when: false
+    - name: Recopilar informacion del sistema
+      ansible.builtin.setup:
+    - name: Validar variables de despliegue
+      ansible.builtin.assert:
+        that:
+          - postgres_password is match('^[A-Za-z0-9]{24,128}$')
+          - admin_password is match('^[A-Za-z0-9]{24,128}$')
+          - admin_username is match('^[A-Za-z0-9_-]{1,80}$')
+          - docker_username is match('^[a-z0-9_-]+$')
+          - image_tag is match('^[a-f0-9]{40}$')
+          - public_ip is match('^[0-9.]+$')
+        fail_msg: Revisa las variables. Las contraseñas deben tener 24 a 128 caracteres alfanumericos.
+      no_log: true
+  tasks:
+    - name: Verificar Ubuntu 24.04
+      ansible.builtin.assert:
+        that:
+          - ansible_distribution == 'Ubuntu'
+          - ansible_distribution_version == '24.04'
+        fail_msg: Selecciona una imagen Ubuntu 24.04 compatible con el shape antes de desplegar.
+    - name: Instalar paquetes base
+      ansible.builtin.apt:
+        name: [ca-certificates, curl, gnupg, git, iptables, openssl]
+        state: present
+        update_cache: true
+        lock_timeout: 300
+    - name: Crear keyrings
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+    - name: Descargar clave oficial de Docker
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: '0644'
+    - name: Configurar repositorio Docker Ubuntu 24.04
+      ansible.builtin.apt_repository:
+        repo: "deb [arch={{ architecture_map[ansible_architecture] }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu noble stable"
+        filename: docker
+        state: present
+    - name: Instalar Docker y Compose
+      ansible.builtin.apt:
+        name: [docker-ce, docker-ce-cli, containerd.io, docker-buildx-plugin, docker-compose-plugin]
+        state: present
+        update_cache: true
+        lock_timeout: 300
+    - name: Habilitar Docker
+      ansible.builtin.systemd:
+        name: docker
+        enabled: true
+        state: started
+    - name: Crear directorios de despliegue
+      ansible.builtin.file:
+        path: '{{ project_dir }}/{{ item }}'
+        state: directory
+        owner: root
+        mode: '0700'
+      loop: ['', tls, infra/nginx, backups]
+    - name: Copiar Compose y configuracion de Nginx desde el commit del runner
+      ansible.builtin.copy:
+        src: '{{ item.src }}'
+        dest: '{{ project_dir }}/{{ item.dest }}'
+        mode: '0600'
+      loop:
+        - {src: '../../compose.yml', dest: compose.yml}
+        - {src: '../../compose.prod.yml', dest: compose.prod.yml}
+        - {src: '../nginx/production.conf', dest: infra/nginx/production.conf}
+    - name: Configurar entorno privado
+      ansible.builtin.template:
+        src: env.j2
+        dest: '{{ project_dir }}/.env'
+        mode: '0600'
+      no_log: true
+    - name: Leer SAN del certificado actual
+      ansible.builtin.command: openssl x509 -in /opt/portafolio/tls/server.crt -noout -ext subjectAltName -checkend 2592000
+      register: certificate
+      failed_when: false
+      changed_when: false
+    - name: Generar certificado de laboratorio para la IP publica
+      ansible.builtin.command:
+        argv: [openssl, req, -x509, -nodes, -newkey, 'rsa:3072', -days, '365', -keyout, '/opt/portafolio/tls/server.key', -out, '/opt/portafolio/tls/server.crt', -subj, '/CN={{ public_ip }}', -addext, 'subjectAltName=IP:{{ public_ip }}']
+      when: certificate.rc != 0 or ('IP Address:' + public_ip) not in certificate.stdout
+      register: new_certificate
+      no_log: true
+    - name: Proteger clave TLS
+      ansible.builtin.file:
+        path: '{{ project_dir }}/tls/server.key'
+        mode: '0600'
+    - name: Iniciar sesion en Docker Hub para pull
+      community.docker.docker_login:
+        username: '{{ docker_username }}'
+        password: '{{ docker_token }}'
+      no_log: true
+    - name: Descargar imagenes del commit
+      ansible.builtin.command: docker compose --profile tools -f compose.yml -f compose.prod.yml pull
+      args:
+        chdir: '{{ project_dir }}'
+      changed_when: true
+    - name: Detener API anterior durante migraciones
+      ansible.builtin.command: docker compose -f compose.yml -f compose.prod.yml stop web api
+      args:
+        chdir: '{{ project_dir }}'
+      changed_when: true
+    - name: Iniciar base de datos
+      community.docker.docker_compose_v2:
+        project_src: '{{ project_dir }}'
+        files: [compose.yml, compose.prod.yml]
+        services: [db]
+        state: present
+        wait: true
+    - name: Respaldar base de datos antes de migrar
+      ansible.builtin.shell: set -o pipefail; umask 077; docker compose -f compose.yml -f compose.prod.yml exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' | gzip > backups/predeploy-$(date +%Y%m%d-%H%M%S).sql.gz
+      args:
+        chdir: '{{ project_dir }}'
+        executable: /bin/bash
+      changed_when: true
+    - name: Migrar esquema y crear datos iniciales
+      ansible.builtin.command: docker compose -f compose.yml -f compose.prod.yml run --rm init
+      args:
+        chdir: '{{ project_dir }}'
+      changed_when: true
+      no_log: true
+    - name: Iniciar servicios de la aplicacion
+      community.docker.docker_compose_v2:
+        project_src: '{{ project_dir }}'
+        files: [compose.yml, compose.prod.yml]
+        state: present
+        build: never
+        wait: true
+        wait_timeout: 180
+    - name: Reiniciar Nginx si cambio el certificado
+      ansible.builtin.command: docker compose -f compose.yml -f compose.prod.yml exec -T web nginx -s reload
+      args:
+        chdir: '{{ project_dir }}'
+      when: new_certificate is changed
+      changed_when: true
+    - name: Instalar reglas de firewall
+      ansible.builtin.template:
+        src: firewall.sh.j2
+        dest: /usr/local/sbin/portafolio-firewall
+        mode: '0700'
+    - name: Crear servicio de firewall persistente
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/portafolio-firewall.service
+        mode: '0644'
+        content: |
+          [Unit]
+          Description=Firewall del portafolio
+          After=network-online.target docker.service
+          Requires=docker.service
+          PartOf=docker.service
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/local/sbin/portafolio-firewall
+          RemainAfterExit=yes
+          [Install]
+          WantedBy=multi-user.target docker.service
+    - name: Aplicar firewall
+      ansible.builtin.systemd:
+        name: portafolio-firewall
+        daemon_reload: true
+        enabled: true
+        state: restarted
+    - name: Verificar API a traves de HTTPS
+      ansible.builtin.uri:
+        url: https://127.0.0.1/api/health
+        validate_certs: false
+        status_code: 200

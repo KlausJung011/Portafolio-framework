@@ -1,0 +1,24 @@
+#!/bin/sh
+set -eu
+# Solo gestionamos cadenas propias. No vaciamos reglas de Docker ni las de OCI.
+iptables -N PORTFOLIO_INPUT 2>/dev/null || true
+iptables -F PORTFOLIO_INPUT
+iptables -A PORTFOLIO_INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -A PORTFOLIO_INPUT -i lo -j ACCEPT
+iptables -A PORTFOLIO_INPUT -p icmp -j ACCEPT
+{% for cidr in ssh_cidrs %}
+iptables -A PORTFOLIO_INPUT -p tcp -s {{ cidr }} --dport 22 -j ACCEPT
+{% endfor %}
+iptables -A PORTFOLIO_INPUT -p tcp -m multiport --dports 80,443 -j ACCEPT
+iptables -A PORTFOLIO_INPUT -j DROP
+iptables -C INPUT -j PORTFOLIO_INPUT 2>/dev/null || iptables -I INPUT 1 -j PORTFOLIO_INPUT
+# Docker publica puertos mediante FORWARD. Solo permitimos 80/443 desde Internet.
+iptables -N PORTFOLIO_DOCKER 2>/dev/null || true
+iptables -F PORTFOLIO_DOCKER
+iptables -A PORTFOLIO_DOCKER -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iface=$(ip -4 route show default | awk 'NR==1 {print $5}')
+iptables -A PORTFOLIO_DOCKER -i "$iface" -p tcp -m conntrack --ctorigdstport 80 -j RETURN
+iptables -A PORTFOLIO_DOCKER -i "$iface" -p tcp -m conntrack --ctorigdstport 443 -j RETURN
+iptables -A PORTFOLIO_DOCKER -i "$iface" -j DROP
+iptables -A PORTFOLIO_DOCKER -j RETURN
+iptables -C DOCKER-USER -j PORTFOLIO_DOCKER 2>/dev/null || iptables -I DOCKER-USER 1 -j PORTFOLIO_DOCKER

@@ -1,0 +1,117 @@
+name: Publicar y desplegar en OCI
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portafolio-production
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    needs: tests
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        include:
+          - {image: portafolio-api, dockerfile: backend/Dockerfile}
+          - {image: portafolio-web, dockerfile: frontend/Dockerfile}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKER_USERNAME || 'klausjung011' }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ vars.DOCKER_USERNAME || 'klausjung011' }}/${{ matrix.image }}:${{ github.sha }}
+            ${{ vars.DOCKER_USERNAME || 'klausjung011' }}/${{ matrix.image }}:latest
+
+  deploy:
+    needs: publish
+    runs-on: ubuntu-24.04
+    environment: production
+    env:
+      OCI_TENANCY_OCID: ${{ vars.OCI_TENANCY_OCID }}
+      OCI_USER_OCID: ${{ vars.OCI_USER_OCID }}
+      OCI_FINGERPRINT: ${{ vars.OCI_FINGERPRINT }}
+      OCI_REGION: ${{ vars.OCI_REGION || 'sa-saopaulo-1' }}
+      OCI_API_KEY_PEM: ${{ secrets.OCI_API_KEY_PEM }}
+      OCI_STATE_BUCKET: ${{ vars.OCI_STATE_BUCKET }}
+      OCI_NAMESPACE: ${{ vars.OCI_NAMESPACE }}
+      TF_VAR_region: ${{ vars.OCI_REGION || 'sa-saopaulo-1' }}
+      TF_VAR_compartment_ocid: ${{ vars.OCI_COMPARTMENT_OCID }}
+      TF_VAR_availability_domain: ${{ vars.OCI_AVAILABILITY_DOMAIN }}
+      TF_VAR_ubuntu_2404_image_ocid: ${{ vars.OCI_UBUNTU_IMAGE_OCID }}
+      TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+      TF_VAR_admin_ssh_cidr: ${{ vars.ADMIN_SSH_CIDR }}
+      TF_VAR_shape: ${{ vars.OCI_SHAPE || 'VM.Standard.E2.1' }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      ADMIN_USERNAME: ${{ vars.ADMIN_USERNAME || 'admin' }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      DOCKER_USERNAME: ${{ vars.DOCKER_USERNAME || 'klausjung011' }}
+      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+      IMAGE_TAG: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.16.0'
+          terraform_wrapper: false
+      - name: Preparar credenciales privadas y configuracion de OCI
+        run: python scripts/prepare_deploy.py
+      - name: Detectar IP publica del runner
+        run: |
+          RUNNER_IP=$(curl --fail --silent --show-error --retry 3 https://api.ipify.org)
+          python -c 'import ipaddress,sys; ipaddress.IPv4Address(sys.argv[1])' "$RUNNER_IP"
+          echo "TF_VAR_runner_ssh_cidr=$RUNNER_IP/32" >> "$GITHUB_ENV"
+      - name: Inicializar Terraform con estado remoto
+        working-directory: infra/terraform
+        run: terraform init -input=false -backend-config="$RUNNER_TEMP/backend.hcl"
+      - name: Planificar infraestructura
+        working-directory: infra/terraform
+        run: terraform plan -input=false -out="$RUNNER_TEMP/portfolio.tfplan"
+      - name: Crear o actualizar infraestructura
+        working-directory: infra/terraform
+        run: terraform apply -input=false "$RUNNER_TEMP/portfolio.tfplan"
+      - name: Crear inventario Ansible y esperar SSH
+        run: |
+          PUBLIC_IP=$(terraform -chdir=infra/terraform output -raw public_ip)
+          echo "PUBLIC_IP=$PUBLIC_IP" >> "$GITHUB_ENV"
+          python scripts/prepare_inventory.py "$PUBLIC_IP"
+      - name: Instalar Ansible
+        run: |
+          python -m pip install 'ansible-core>=2.18,<2.19'
+          ansible-galaxy collection install -r infra/ansible/requirements.yml
+      - name: Configurar VM y desplegar imagenes del commit
+        working-directory: infra/ansible
+        run: ansible-playbook -i "$RUNNER_TEMP/inventory.ini" playbook.yml --extra-vars "@$RUNNER_TEMP/runtime.json"
+      - name: Verificar HTTPS usando el certificado recuperado por SSH
+        run: |
+          ssh -i "$RUNNER_TEMP/portfolio_ssh" "ubuntu@$PUBLIC_IP" 'sudo cat /opt/portafolio/tls/server.crt' > "$RUNNER_TEMP/server.crt"
+          curl --fail --retry 5 --retry-delay 5 --cacert "$RUNNER_TEMP/server.crt" "https://$PUBLIC_IP/api/health"
+          echo "Portafolio: https://$PUBLIC_IP" >> "$GITHUB_STEP_SUMMARY"
+          echo 'Certificado de laboratorio autofirmado. Consulta docs/03-despliegue.md para verificarlo.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Eliminar archivos temporales con credenciales
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/portfolio_ssh" "$RUNNER_TEMP/runtime.json" "$RUNNER_TEMP/backend.hcl" "$RUNNER_TEMP/portfolio.tfplan"
+          rm -f ~/.oci/config ~/.oci/oci_api_key.pem
